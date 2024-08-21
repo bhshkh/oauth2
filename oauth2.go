@@ -314,10 +314,16 @@ func (s *reuseTokenSource) Token() (*Token, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.t.Valid() {
-		prefixTime(fmt.Sprintf("token is valid Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
+		prefixTime(fmt.Sprintf("token is valid"))
+		if s.t != nil {
+			prefixTime(fmt.Sprintf("Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
+		}
 		return s.t, nil
 	}
-	prefixTime(fmt.Sprintf("token is not valid Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
+	prefixTime(fmt.Sprintf("token is not valid\n"))
+	if s.t != nil {
+		prefixTime(fmt.Sprintf("Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
+	}
 	t, err := s.new.Token()
 	if err != nil {
 		return nil, err

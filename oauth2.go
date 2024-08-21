@@ -309,21 +309,15 @@ type reuseTokenSource struct {
 // refresh the current token (using r.Context for HTTP client
 // information) and return the new one.
 func (s *reuseTokenSource) Token() (*Token, error) {
-	prefixTime(fmt.Sprintf("In reuseTokenSource Token\n"))
+	prefixTime(fmt.Sprintf("In reuseTokenSource Token. Token: %+v\n", s.t))
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.t.Valid() {
-		prefixTime(fmt.Sprintf("token is valid\n"))
-		if s.t != nil {
-			prefixTime(fmt.Sprintf("Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
-		}
+		prefixTime(fmt.Sprintf("token is valid"))
 		return s.t, nil
 	}
 	prefixTime(fmt.Sprintf("token is not valid\n"))
-	if s.t != nil {
-		prefixTime(fmt.Sprintf("Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
-	}
 	t, err := s.new.Token()
 	if err != nil {
 		return nil, err

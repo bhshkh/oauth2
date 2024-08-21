@@ -314,7 +314,7 @@ func (s *reuseTokenSource) Token() (*Token, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.t.Valid() {
-		prefixTime(fmt.Sprintf("token is valid"))
+		prefixTime(fmt.Sprintf("token is valid\n"))
 		if s.t != nil {
 			prefixTime(fmt.Sprintf("Expiry: %+v\n", s.t.Expiry.Format("2006/01/02 15:04:05")))
 		}

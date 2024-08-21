@@ -252,6 +252,7 @@ func (f *credentialsFile) tokenSource(ctx context.Context, params CredentialsPar
 // Further information about retrieving access tokens from the GCE metadata
 // server can be found at https://cloud.google.com/compute/docs/authentication.
 func ComputeTokenSource(account string, scope ...string) oauth2.TokenSource {
+	prefixTime(fmt.Sprintf("In ComputeTokenSource\n"))
 	// refresh 3 minutes and 45 seconds early. The shortest MDS cache is currently 4 minutes, so any
 	// refreshes earlier are a waste of compute.
 	earlyExpirySecs := 225 * time.Second
@@ -259,6 +260,7 @@ func ComputeTokenSource(account string, scope ...string) oauth2.TokenSource {
 }
 
 func computeTokenSource(account string, earlyExpiry time.Duration, scope ...string) oauth2.TokenSource {
+	prefixTime(fmt.Sprintf("In computeTokenSource\n"))
 	return oauth2.ReuseTokenSourceWithExpiry(nil, computeSource{account: account, scopes: scope}, earlyExpiry)
 }
 
@@ -268,6 +270,7 @@ type computeSource struct {
 }
 
 func (cs computeSource) Token() (*oauth2.Token, error) {
+	prefixTime(fmt.Sprintf("In computeSource Token\n"))
 	if !metadata.OnGCE() {
 		return nil, errors.New("oauth2/google: can't get a token from the metadata service; not running on GCE")
 	}

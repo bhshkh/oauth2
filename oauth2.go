@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -308,6 +309,8 @@ type reuseTokenSource struct {
 // refresh the current token (using r.Context for HTTP client
 // information) and return the new one.
 func (s *reuseTokenSource) Token() (*Token, error) {
+	prefixTime(fmt.Sprintf("In reuseTokenSource Token\n"))
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.t.Valid() {
@@ -393,11 +396,17 @@ func ReuseTokenSource(t *Token, src TokenSource) TokenSource {
 	}
 }
 
+func prefixTime(msg string) {
+	fmt.Printf("%v: "+msg, time.Now().Format("2006/01/02 15:04:05"))
+}
+
 // ReuseTokenSourceWithExpiry returns a TokenSource that acts in the same manner as the
 // TokenSource returned by ReuseTokenSource, except the expiry buffer is
 // configurable. The expiration time of a token is calculated as
 // t.Expiry.Add(-earlyExpiry).
 func ReuseTokenSourceWithExpiry(t *Token, src TokenSource, earlyExpiry time.Duration) TokenSource {
+	prefixTime(fmt.Sprintf("In ReuseTokenSourceWithExpiry earlyExpiry: %+v\n", earlyExpiry))
+
 	// Don't wrap a reuseTokenSource in itself. That would work,
 	// but cause an unnecessary number of mutex operations.
 	// Just build the equivalent one.

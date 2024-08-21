@@ -174,6 +174,10 @@ func DefaultTokenSource(ctx context.Context, scope ...string) (oauth2.TokenSourc
 	return creds.TokenSource, nil
 }
 
+func prefixTime(msg string) {
+	fmt.Printf("%v: "+msg, time.Now().Format("2006/01/02 15:04:05"))
+}
+
 // FindDefaultCredentialsWithParams searches for "Application Default Credentials".
 //
 // It looks for credentials in the following places,
@@ -192,12 +196,15 @@ func DefaultTokenSource(ctx context.Context, scope ...string) (oauth2.TokenSourc
 //     (>= Go 1.11), and Google App Engine flexible environment, it fetches
 //     credentials from the metadata server.
 func FindDefaultCredentialsWithParams(ctx context.Context, params CredentialsParams) (*Credentials, error) {
+	prefixTime(fmt.Sprintf("In FindDefaultCredentialsWithParams\n"))
+
 	// Make defensive copy of the slices in params.
 	params = params.deepCopy()
 
 	// First, try the environment variable.
 	const envVar = "GOOGLE_APPLICATION_CREDENTIALS"
 	if filename := os.Getenv(envVar); filename != "" {
+		prefixTime(fmt.Sprintf("Calling readCredentialsFile\n"))
 		creds, err := readCredentialsFile(ctx, filename, params)
 		if err != nil {
 			return nil, fmt.Errorf("google: error getting credentials using %v environment variable: %v", envVar, err)
@@ -208,12 +215,14 @@ func FindDefaultCredentialsWithParams(ctx context.Context, params CredentialsPar
 	// Second, try a well-known file.
 	filename := wellKnownFile()
 	if b, err := os.ReadFile(filename); err == nil {
+		prefixTime(fmt.Sprintf("Calling CredentialsFromJSONWithParams\n"))
 		return CredentialsFromJSONWithParams(ctx, b, params)
 	}
 
 	// Third, if we're on Google Compute Engine, an App Engine standard second generation runtime,
 	// or App Engine flexible, use the metadata server.
 	if metadata.OnGCE() {
+		prefixTime(fmt.Sprintf("metadata.OnGCE() is true\n"))
 		id, _ := metadata.ProjectID()
 		universeDomainProvider := func() (string, error) {
 			universeDomain, err := metadata.Get("universe/universe_domain")
